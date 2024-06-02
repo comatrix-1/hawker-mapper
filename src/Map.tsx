@@ -1,5 +1,4 @@
-import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
-import { csvToJson } from "./helpers";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useCallback, useEffect, useState } from "react";
 import { IHawkerWithLongLat } from "./types";
 
