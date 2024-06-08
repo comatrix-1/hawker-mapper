@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "./hawker-mapper",
+  "homepage": "hawker-mapper",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
