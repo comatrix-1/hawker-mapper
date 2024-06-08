@@ -1,2 +1,3 @@
-export const ONEMAP_SEARCH =
-  "https://developers.onemap.sg/commonapi/search?searchVal=760101&returnGeom=Y&getAddrDetails=Y&pageNum=1";
+export const buildOneMapSearchUrl = (searchVal: string) => {
+  return `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${searchVal}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+};

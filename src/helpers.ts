@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { IHawker } from "./types";
+import { buildOneMapSearchUrl } from "./constants";
 
 export const fetchCsv = async (path: string) => {
   try {
@@ -31,12 +32,12 @@ export const fetchCsv = async (path: string) => {
   }
 };
 
-export const searchOneMap = async (hawker: IHawker): Promise<IHawker | null> => {
+export const searchOneMap = async (
+  hawker: IHawker
+): Promise<IHawker | null> => {
   if (!hawker?.postalCode) return null;
   try {
-    const result = await fetch(
-      `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${hawker.postalCode}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
-    );
+    const result = await fetch(buildOneMapSearchUrl(hawker.postalCode));
 
     const resultJson: any = await result.json();
 
