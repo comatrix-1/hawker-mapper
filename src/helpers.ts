@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import { IHawker, IHawkerWithLongLat } from "./types";
+import { IHawker } from "./types";
 
 export const fetchCsv = async (path: string) => {
   try {
@@ -31,20 +31,33 @@ export const fetchCsv = async (path: string) => {
   }
 };
 
-export const searchOneMap = async (hawker: IHawker) => {
-  const result = await fetch(
-    `https://developers.onemap.sg/commonapi/search?searchVal=${hawker["Postal code"]}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
-  );
+export const searchOneMap = async (hawker: IHawker): Promise<IHawker> => {
+  if (!hawker?.postalCode) return;
+  try {
+    const result = await fetch(
+      `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${hawker.postalCode}&returnGeom=Y&getAddrDetails=Y&pageNum=1`
+    );
 
-  const resultJson: any = await result.json();
+    const resultJson: any = await result.json();
 
-  if (resultJson && resultJson.found && resultJson.results.length > 0) {
-    return {
-      ...hawker,
-      latitude: resultJson.results[0].LATITUDE as number,
-      longitude: resultJson.results[0].LONGITUDE as number,
-    };
-  } else console.log("No result for postal code: ", hawker["Postal code"]);
+    if (resultJson && resultJson.found && resultJson.results.length > 0) {
+      return {
+        ...hawker,
+        latitude: parseFloat(resultJson.results[0].LATITUDE),
+        longitude: parseFloat(resultJson.results[0].LONGITUDE),
+      };
+    } else {
+      console.log("No result for postal code: ", hawker.postalCode);
+      return hawker;
+    }
+  } catch (error) {
+    console.error(
+      "Error fetching data for postal code: ",
+      hawker.postalCode,
+      error
+    );
+    return hawker;
+  }
 };
 
 export const exportData = (data: any, fileName: string, type: any) => {
@@ -58,30 +71,6 @@ export const exportData = (data: any, fileName: string, type: any) => {
   window.URL.revokeObjectURL(url);
 };
 
-export const searchAndSaveList = async (hawkersToSearch: IHawker[]) => {
-  console.log(
-    "searchAndSaveList :: hawkersToSearch.length : ",
-    hawkersToSearch.length
-  );
-  var hawkerResultList: any[] = [];
-
-  // Use `for...of` loop to ensure proper handling of asynchronous calls
-  for (const hawkerToSearch of hawkersToSearch) {
-    const result = await searchOneMap(hawkerToSearch);
-    hawkerResultList.push(result);
-    console.log(hawkerResultList);
-  }
-
-  console.log(
-    "searchAndSaveList :: search complete. length: ",
-    hawkerResultList.length
-  );
-
-  const dataToExport = JSON.stringify(hawkerResultList);
-
-  exportData(dataToExport, "data", "csv");
-};
-
 export const csvToJson = async (path: string) => {
   const resultList = await fetch(path);
 
@@ -90,4 +79,17 @@ export const csvToJson = async (path: string) => {
   const parsedResultList = JSON.parse(resultListText);
 
   return parsedResultList;
+};
+
+export const mapArrayToHawker = (array: any[]): IHawker[] => {
+  const returnArray: any[] = array.map((item) => {
+    return {
+      stall: item.Stall,
+      unit: item?.Unit,
+      address: item.Address,
+      area: item.Area,
+      postalCode: item["Postal Code"],
+    };
+  });
+  return returnArray;
 };

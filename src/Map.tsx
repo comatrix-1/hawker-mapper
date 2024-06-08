@@ -1,56 +1,59 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { useCallback, useEffect, useState } from "react";
-import { IHawkerWithLongLat } from "./types";
+import { IHawker } from "./types";
+import { mapArrayToHawker, searchOneMap } from "./helpers";
 
 export default function Map() {
-  const [hawkerList, setHawkerList] = useState<IHawkerWithLongLat[]>([]);
+  const [hawkerList, setHawkerList] = useState<IHawker[]>([]);
 
-  const parseHawker = (data: IHawkerWithLongLat): IHawkerWithLongLat | null => {
-    if (!data) return null;
-
-    const hawker: IHawkerWithLongLat = {
-      Name: data.Name,
-      Address: data.Address,
-      "Postal code": data["Postal code"],
-      Region: data.Region,
-      Type: data.Type,
-      latitude: data.latitude,
-      longitude: data.longitude,
-    };
-    return hawker;
-  };
+  const isSearchingOneMap = false;
+  const isFilteringUniqueGeoCodes = true;
 
   const fetchHawkerList = useCallback(async () => {
     try {
-      const result = await fetch("/result.json");
-      const retrievedHawkerList: IHawkerWithLongLat[] =
-        (await result.json()) as IHawkerWithLongLat[];
+      const result = await fetch("/dbs-paylah-hawker-list.json");
+      const jsonData: IHawker[] = (await result.json()) as IHawker[];
+      console.log("jsonData", jsonData);
 
-      console.log("retrievedHawkerList", retrievedHawkerList);
+      let hawkerList: IHawker[] = jsonData;
 
-      const uniqueItems = new Set<string>();
+      if (isSearchingOneMap) {
+        const promises = hawkerList.map((hawker) => searchOneMap(hawker));
+        const results = await Promise.all(promises);
 
-      const filteredList: IHawkerWithLongLat[] = retrievedHawkerList.filter(
-        (hawker) => {
-          const parsedHawker = parseHawker(hawker);
-          if (!parsedHawker) {
-            return false;
-          } else if (
-            !uniqueItems.has(parsedHawker.Name + parsedHawker["Postal code"])
-          ) {
-            uniqueItems.add(parsedHawker.Name + parsedHawker["Postal code"]);
-            return true;
+        // Filter out undefined results (in case of errors or no results)
+        const hawkerResultList = results.filter(
+          (result) => result !== undefined
+        );
+
+        console.log("hawkerResultList", hawkerResultList);
+      }
+
+      if (isFilteringUniqueGeoCodes) {
+        const uniqueGeoCodeSet = new Set<string>();
+        let uniqueHawkerList: IHawker[] = [];
+
+        for (const hawker of hawkerList) {
+          const uniqueKey = `${hawker.stall ?? ""}${hawker.postalCode ?? ""}`;
+          if (!uniqueKey.length) {
+            console.log("!uniqueKey.length");
+          } else if (!uniqueGeoCodeSet.has(uniqueKey)) {
+            uniqueGeoCodeSet.add(uniqueKey);
+            uniqueHawkerList = uniqueHawkerList.concat(hawker);
           } else {
-            return false;
+            console.log("uniqueKey already in set", uniqueKey);
           }
         }
-      );
 
-      setHawkerList(filteredList);
+        hawkerList = uniqueHawkerList;
+      }
+
+      console.log("hawkerList at end", hawkerList);
+      setHawkerList(hawkerList);
     } catch (error) {
       console.error("Failed to fetch hawker list", error);
     }
-  }, [setHawkerList]);
+  }, [isSearchingOneMap]);
 
   useEffect(() => {
     void (async () => {
@@ -74,13 +77,11 @@ export default function Map() {
       />
       {hawkerList?.map((hawker) => (
         <Marker
-          position={[hawker.latitude, hawker.longitude]}
-          key={hawker.Name + hawker.Address}
+          position={[Number(hawker?.latitude ?? ""), Number(hawker?.longitude ?? "")]}
+          key={`${hawker.stall ?? ""}${hawker.address ?? ""}`}
         >
           <Popup>
-            <b>{hawker.Name}</b>
-            <p>{hawker.Address}</p>
-            <p>{hawker["Postal code"]}</p>
+            <b>{hawker.area}</b>
           </Popup>
         </Marker>
       ))}
