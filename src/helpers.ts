@@ -31,8 +31,8 @@ export const fetchCsv = async (path: string) => {
   }
 };
 
-export const searchOneMap = async (hawker: IHawker): Promise<IHawker> => {
-  if (!hawker?.postalCode) return;
+export const searchOneMap = async (hawker: IHawker): Promise<IHawker | null> => {
+  if (!hawker?.postalCode) return null;
   try {
     const result = await fetch(
       `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${hawker.postalCode}&returnGeom=Y&getAddrDetails=Y&pageNum=1`

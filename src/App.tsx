@@ -1,19 +1,23 @@
 import "./App.css";
 import Map from "./Map";
 import Aside from "./Aside";
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { searchOneMap } from "./helpers";
 import { IHawker } from "./types";
 
 function App() {
-  const [selectedPostalCode, setSelectedPostalCode] = useState<number>(0);
   const [selectedLatLng, setSelectedLatLng] = useState({ lat: 0, lng: 0 });
   const [hawkerList, setHawkerList] = useState<IHawker[]>([]);
 
   const isSearchingOneMap = false;
   const isFilteringUniqueGeoCodes = true;
 
-  const fetchHawkerList = useCallback(async () => {
+  const handleFetchHawkerList = () => {
+    void fetchHawkerList();
+  };
+
+  const fetchHawkerList = async () => {
+    console.log("fetchHawkerList()");
     try {
       const result = await fetch("/dbs-paylah-hawker-list.json");
       const jsonData: IHawker[] = (await result.json()) as IHawker[];
@@ -57,17 +61,12 @@ function App() {
     } catch (error) {
       console.error("Failed to fetch hawker list", error);
     }
-  }, [isSearchingOneMap]);
-
-  useEffect(() => {
-    void (async () => {
-      await fetchHawkerList();
-    })();
-  }, []);
+  };
 
   return (
     <>
       <h1>Hawker list</h1>
+      <button onClick={handleFetchHawkerList}>Fetch hawker list</button>
       <main>
         <div style={{ height: "40%" }}>
           <Map

@@ -3,11 +3,8 @@ import {
   TileLayer,
   Marker,
   Popup,
-  useMapEvent,
 } from "react-leaflet";
-import { useCallback, useEffect, useState } from "react";
 import { IHawker } from "./types";
-import { mapArrayToHawker, searchOneMap } from "./helpers";
 
 type Props = {
   hawkerList: IHawker[];
@@ -22,7 +19,6 @@ type Props = {
 
 export default function Map({
   hawkerList,
-  selectedLatLng,
   setSelectedLatLng,
 }: Props) {
   const handleClick = (event: L.LeafletMouseEvent) => {
