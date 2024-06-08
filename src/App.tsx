@@ -19,7 +19,8 @@ function App() {
   const fetchHawkerList = async () => {
     console.log("fetchHawkerList()");
     try {
-      const result = await fetch("/dbs-paylah-hawker-list.json");
+      const base = import.meta.env.BASE_URL;
+      const result = await fetch(`${base}dbs-paylah-hawker-list.json`);
       const jsonData: IHawker[] = (await result.json()) as IHawker[];
       console.log("jsonData", jsonData);
 
