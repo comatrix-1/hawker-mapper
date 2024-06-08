@@ -4,11 +4,11 @@ import Aside from "./Aside";
 import { useState } from "react";
 import { searchOneMap } from "./helpers";
 import { IHawker } from "./types";
-const BASE_URL = import.meta.env.VITE_BASE_URL || '/';
 
 function App() {
   const [selectedLatLng, setSelectedLatLng] = useState({ lat: 0, lng: 0 });
   const [hawkerList, setHawkerList] = useState<IHawker[]>([]);
+  const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VITE_BASE_URL || '/';
 
   const isSearchingOneMap = false;
   const isFilteringUniqueGeoCodes = true;
