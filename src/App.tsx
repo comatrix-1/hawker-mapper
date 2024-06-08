@@ -4,6 +4,7 @@ import Aside from "./Aside";
 import { useState } from "react";
 import { searchOneMap } from "./helpers";
 import { IHawker } from "./types";
+const BASE_URL = import.meta.env.VITE_BASE_URL || '/';
 
 function App() {
   const [selectedLatLng, setSelectedLatLng] = useState({ lat: 0, lng: 0 });
@@ -19,8 +20,7 @@ function App() {
   const fetchHawkerList = async () => {
     console.log("fetchHawkerList()");
     try {
-      const base = import.meta.env.BASE_URL;
-      const result = await fetch(`${base}dbs-paylah-hawker-list.json`);
+      const result = await fetch(`${BASE_URL}dbs-paylah-hawker-list.json`);
       const jsonData: IHawker[] = (await result.json()) as IHawker[];
       console.log("jsonData", jsonData);
 
