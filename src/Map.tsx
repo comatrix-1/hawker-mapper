@@ -3,8 +3,6 @@ import {
   TileLayer,
   Marker,
   Popup,
-  useMapEvent,
-  useMap,
   useMapEvents,
 } from "react-leaflet";
 import { IHawker } from "./types";
