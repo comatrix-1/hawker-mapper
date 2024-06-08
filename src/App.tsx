@@ -8,7 +8,9 @@ import { IHawker } from "./types";
 function App() {
   const [selectedLatLng, setSelectedLatLng] = useState({ lat: 0, lng: 0 });
   const [hawkerList, setHawkerList] = useState<IHawker[]>([]);
-  const BASE_URL = import.meta.env.VITE_BASE_URL || process.env.VITE_BASE_URL || '/';
+  const [isLoading, setIsLoading] = useState(false);
+  const BASE_URL =
+    import.meta.env.VITE_BASE_URL || process.env.VITE_BASE_URL || "/";
 
   const isSearchingOneMap = false;
   const isFilteringUniqueGeoCodes = true;
@@ -19,6 +21,7 @@ function App() {
 
   const fetchHawkerList = async () => {
     console.log("fetchHawkerList()");
+    setIsLoading(true);
     try {
       const result = await fetch(`${BASE_URL}dbs-paylah-hawker-list.json`);
       const jsonData: IHawker[] = (await result.json()) as IHawker[];
@@ -61,13 +64,17 @@ function App() {
       setHawkerList(hawkerList);
     } catch (error) {
       console.error("Failed to fetch hawker list", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <h1>Hawker list</h1>
-      <button onClick={handleFetchHawkerList}>Fetch hawker list</button>
+      <button onClick={handleFetchHawkerList}>
+        {isLoading ? "Loading..." : "Fetch hawker list"}
+      </button>
       <main>
         <div style={{ height: "40%" }}>
           <Map
