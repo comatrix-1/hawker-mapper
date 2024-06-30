@@ -29,14 +29,11 @@ function MapComponent({
   setVisibleMarkers: React.Dispatch<React.SetStateAction<any[]>>;
 }) {
   const map = useMapEvents({
-    click: () => {
+    click: (e) => {
       map.locate();
-    },
-    locationfound: (location) => {
-      console.log("location found:", location);
+      map.flyTo(e.latlng, 16);
     },
     zoom: () => {
-      console.log("handleZoomChange() zoom", map.getZoom());
       setCurrentZoom(map.getZoom());
     },
     moveend: () => {

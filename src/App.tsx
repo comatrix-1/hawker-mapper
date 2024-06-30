@@ -65,7 +65,7 @@ function App() {
 
   useEffect(() => {
     void (async () => fetchHawkerList())();
-  });
+  }, []);
 
   return (
     <>
@@ -77,6 +77,7 @@ function App() {
           here.
         </a>{" "}
         The data was last updated on 6 June 2024.
+        <p>Start by zooming in or tapping anywhere on the map to zoom in</p>
       </p>
       <main>
         <div style={{ height: "40%" }}>
